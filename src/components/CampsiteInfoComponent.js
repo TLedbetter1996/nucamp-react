@@ -1,10 +1,8 @@
-import React, { Component } from "react"
-import { Card, CardBody, CardImg, CardTitle, CardText} from "reactstrap"
+import React from 'react';
+import { Card, CardBody, CardImg, CardTitle, CardText, Breadcrumb, BreadcrumbItem} from 'reactstrap';
+import { Link } from 'react-router-dom'; 
 
-
-class CampsiteInfo extends Component {
-
-    renderCampsite(campsite) {
+function RenderCampsite({campsite}) {
         return(
             <div className="col-md-5 m-1">
                 <Card>
@@ -17,42 +15,47 @@ class CampsiteInfo extends Component {
             </div>
         )};
 
-    renderComments(comments) {
+function RenderComments({comments}) {
         if (comments) {
             return(
                 <div className="col-md-5 m-1">
                     <h4>Comments</h4>
-                    {comments.map(comment => {return(
-                    <div>
-                        <div>
-                            {comment.text}
-                        </div>
-                        <div>
-                            {comment.author},{new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'short', day: '2-digit'}).format(new Date(Date.parse(comment.date)))}
+                    {comments.map(comment => {
+                        return(
+                            <div key={comment.id}>
+                                <p>{comment.text}<br /> {comment.author}, {new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'short', day: '2-digit'}).format(new Date(Date.parse(comment.date)))}</p>
+                            </div>
+                        );
+                    })}
+                </div>
+            );
+        }
+        return <div />;
+    }
+
+function CampsiteInfo(props) {
+    if(props.campsite) { 
+        return (
+            <div className="container">
+                <div className="row">
+                    <div className="col">
+                        <Breadcrumb>
+                            <BreadcrumbItem><Link to="/directory">Directory</Link></BreadcrumbItem>
+                            <BreadcrumbItem active>Contact Us</BreadcrumbItem>
+                        </Breadcrumb>
+                        <h2>Contact Us</h2>
+                        <hr />
+                    </div>
+                </div>
+                    <div className="row">
+                            <RenderCampsite campsite={props.campsite} />
+                            <RenderComments campsite={props.campsite.comments} />
                         </div>
                     </div>
-                        )
-                    } 
-                   
-                    )}
-                </div>
-            )}
-            return <div></div>
-    };
+            );
+        }
+    return <div />;   
+}    
 
-    render() {
-        if(this.props.campsite) { 
-            return (
-                <div className="col-md-6">
-                    {this.renderCampsite(this.props.campsite)},
-                    {this.renderComments(this.props.campsite.comments)}
-                </div>
-            )} else {
-            return (
-            <div>
-            </div>
-        )}      
-    };
-}
 
-export default CampsiteInfo
+export default CampsiteInfo;
