@@ -1,6 +1,7 @@
 import React from 'react';
 import { Card, CardBody, CardImg, CardTitle, CardText, Breadcrumb, BreadcrumbItem} from 'reactstrap';
 import { Link } from 'react-router-dom'; 
+import { render } from '@testing-library/react';
 
 function RenderCampsite({campsite}) {
         return(
@@ -23,7 +24,8 @@ function RenderComments({comments}) {
                     {comments.map(comment => {
                         return(
                             <div key={comment.id}>
-                                <p>{comment.text}<br /> {comment.author}, {new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'short', day: '2-digit'}).format(new Date(Date.parse(comment.date)))}</p>
+                                <p>{comment.text}</p>
+                                {comment.author}, {new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'short', day: '2-digit'}).format(new Date(Date.parse(comment.date)))}
                             </div>
                         );
                     })}
@@ -31,30 +33,33 @@ function RenderComments({comments}) {
             );
         }
         return <div />;
-    }
+
+}
+    
+
 
 function CampsiteInfo(props) {
-    if(props.campsite) { 
-        return (
-            <div className="container">
-                <div className="row">
-                    <div className="col">
-                        <Breadcrumb>
-                            <BreadcrumbItem><Link to="/directory">Directory</Link></BreadcrumbItem>
-                            <BreadcrumbItem active>Contact Us</BreadcrumbItem>
-                        </Breadcrumb>
-                        <h2>Contact Us</h2>
-                        <hr />
-                    </div>
-                </div>
-                    <div className="row">
-                            <RenderCampsite campsite={props.campsite} />
-                            <RenderComments campsite={props.campsite.comments} />
-                        </div>
-                    </div>
-            );
-        }
-    return <div />;   
+   if(props.campsite) { 
+       return (
+           <div className="container">
+               <div className="row">
+                   <div className="col">
+                       <Breadcrumb>
+                           <BreadcrumbItem><Link to="/directory">Directory</Link></BreadcrumbItem>
+                           <BreadcrumbItem active>Contact Us</BreadcrumbItem>
+                       </Breadcrumb>
+                       <h2>Contact Us</h2>
+                       <hr />
+                   </div>
+               </div>
+                   <div className="row">
+                           <RenderCampsite campsite={props.campsite} />
+                           <RenderComments comments={props.comments} />
+                       </div>
+                   </div>
+           );
+       }
+   return <div />;   
 }    
 
 
