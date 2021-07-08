@@ -1,7 +1,13 @@
-import React from 'react';
-import { Card, CardBody, CardImg, CardTitle, CardText, Breadcrumb, BreadcrumbItem} from 'reactstrap';
+import React, { Component} from 'react';
+import { Card, CardBody, CardImg, CardTitle, CardText, Breadcrumb, Button, BreadcrumbItem, Modal, ModalHeader, ModalBody, Label} from 'reactstrap';
 import { Link } from 'react-router-dom'; 
-import { render } from '@testing-library/react';
+import { Control, LocalForm, Errors} from 'react-redux-form';
+import { Loading } from './LoadingComponent'; 
+
+const maxLength = len => val => !(val) || (val.length <= len);
+const minLength = len => val => val && (val.length >= len);
+
+
 
 function RenderCampsite({campsite}) {
         return(
@@ -16,7 +22,7 @@ function RenderCampsite({campsite}) {
             </div>
         )};
 
-function RenderComments({comments}) {
+function RenderComments({comments, addComment, campsiteId}) {
         if (comments) {
             return(
                 <div className="col-md-5 m-1">
@@ -29,38 +35,212 @@ function RenderComments({comments}) {
                             </div>
                         );
                     })}
+                    <CommentForm campsiteId={campsiteId} addComment={addComment} />
                 </div>
             );
         }
         return <div />;
 
-}
-    
+}      
 
+class CommentForm extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            isModalOpen: !true,
+        };
+        this.toggleModal = this.toggleModal.bind(this);
+        this.handleSubmit = this.handleSubmit.bind(this);
+    }
+
+    toggleModal() {
+        this.setState({
+            isModalOpen: !this.state.isModalOpen
+        });
+    }
+
+    handleSubmit(values) {
+        this.toggleModal();
+        this.props.addComment(this.props.campsiteId, values.rating, values.author, values.text) 
+        
+    }
+
+    render() {
+        return (
+            <div>
+                <Button outline onClick={this.toggleModal}>
+                    <i className="fa fa-pencil fa-lg" /> Submit Comment
+                </Button>
+                <Modal isOpen={this.state.isModalOpen} toggle={this.toggleModal}>
+                    <ModalHeader toggle={this.toggleModal}>Submit Comment</ModalHeader>
+                    <ModalBody>
+                        <LocalForm onSubmit={values => this.handleSubmit(values)}>
+                            <div className="form-group">
+                                <Label htmlFor="rating">Rating</Label>
+                                <Control.select model=".rating" id="rating" name="rating"
+                                    className="form-control">
+                                        <option>1</option>
+                                        <option>2</option>
+                                        <option>3</option>
+                                        <option>4</option>
+                                        <option>5</option>
+                                </Control.select>
+                            </div>
+                            <div className="form-group">
+                                <Label htmlFor="author">Your Name </Label>
+                                <Control.text model=".author" id="author" name="author"
+                                placeholder="Your Name"
+                                className="form-control"
+                                    validators={{
+                                        minLength: minLength(2),
+                                        maxLength: maxLength(15)
+                                    }}
+                                />
+                                <Errors 
+                                    className="text-danger"
+                                    model=".author"
+                                    show="touched"
+                                    component="div"
+                                    messages={{
+                                        minLength: 'Must be at least 2 characters',
+                                        maxLength: 'Must be below 15 characters'
+                                    }}
+                                />
+                            </div>
+                            <div className="form-group">
+                                <Label htmlFor="text">Comment</Label>
+                                    <Control.textarea model=".text" id="text" name="text"
+                                        rows="6"
+                                        className="form-control"
+                                    /> 
+                            </div>
+                            <Button type="submit" color="primary">
+                                Submit
+                            </Button>
+                        </LocalForm>
+                    </ModalBody>
+                </Modal>
+            </div>
+        );
+    }
+}
 
 function CampsiteInfo(props) {
-   if(props.campsite) { 
-       return (
-           <div className="container">
-               <div className="row">
-                   <div className="col">
-                       <Breadcrumb>
-                           <BreadcrumbItem><Link to="/directory">Directory</Link></BreadcrumbItem>
-                           <BreadcrumbItem active>Contact Us</BreadcrumbItem>
-                       </Breadcrumb>
-                       <h2>Contact Us</h2>
-                       <hr />
-                   </div>
-               </div>
-                   <div className="row">
-                           <RenderCampsite campsite={props.campsite} />
-                           <RenderComments comments={props.comments} />
-                       </div>
-                   </div>
-           );
-       }
-   return <div />;   
-}    
+    if(props.isLoading) {
+        return (
+            <div className="container">
+                <div className="row">
+                    <Loading /> 
+                </div>
+            </div>
+        )
+    }
+    if (props.errMess) {
+        return(
+            <div className="container">
+                <div className="row">
+                    <div className="col">
+                        <h4>{props.errMess}</h4>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+    
+    if(props.campsite) { 
+        return (
+            <div className="container">
+                <div className="row">
+                    <div className="col">
+                        <Breadcrumb>
+                            <BreadcrumbItem><Link to="/directory">Directory</Link></BreadcrumbItem>
+                            <BreadcrumbItem active>Contact Us</BreadcrumbItem>
+                        </Breadcrumb>
+                        <h2>Contact Us</h2>
+                        <hr />
+                    </div>
+                </div>
+                    <div className="row">
+                            <RenderCampsite campsite={props.campsite} />
+                            <RenderComments
+                                comments={props.comments} 
+                                addComment={props.addComment}
+                                campsiteId={props.campsite.id}
 
+                            />
+                     </div>
+                 </div>
+            );
+        }
+    return <div />;   
+ }
+
+
+ /*  
+class CommentForm extends Component {
+    constructor(props) {
+    super(props);
+    
+    this.state = {
+        author:'',
+        select:'',
+        isModalOpen: !true,
+        touched: {
+            author: false
+        }
+    };
+
+    /*    return() {
+
+            <div>
+            <Button color="danger" onClick={toggle}>{buttonLabel}</Button>
+                <Modal isOpen={modal} toggle={toggle} className={className}>
+                    <ModalHeader toggle={toggle}>Modal title</ModalHeader>
+                        <ModalBody>
+                        <LocalForm onSubmit={values => this.handleSubmit(values)}>
+                        <Row className="form-group">
+                            <Label htmlFor="select" md={2}>Select</Label>
+                            <Col md={10}>
+                                <Control.select model=".select" id="select" name="select"
+                                    placeholder="select"
+                                    className="form-control">
+                                    <option>1</option>
+                                    <option>2</option>
+                                    <option>3</option>
+                                    <option>4</option>
+                                    <option>5</option>
+                                </Control.select>
+                            </Col>
+                        </Row>
+                        <Row className="form-group">
+                            <Label htmlFor="author" md={2}>Author</Label>
+                            <Col md={10}>
+                                <Control.text model="author" id="author" name="author"
+                                    placeholder="your name"
+                                    className="form-control"
+                                />
+                            </Col>
+                        </Row>
+                        <Row className="form-group">
+                            <Label htmlFor="comment" md={2}>Comment</Label>
+                            <Col md={10}>
+                                <Control.text model=".Comment" id="Comment" name="comment"
+                                    placeholder="comment"
+                                    className="form-control"
+                                />
+                            </Col>
+                        </Row>
+                        </LocalForm>
+                        </ModalBody>
+                    <ModalFooter>
+                    <Button boolean="outline" className="fa-lg fa-pencil">Submit Comment</Button>
+                    </ModalFooter>
+                </Modal>
+            </div>
+
+        }
+        }
+    }
+*/
 
 export default CampsiteInfo;
