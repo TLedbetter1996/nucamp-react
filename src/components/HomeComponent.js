@@ -1,26 +1,34 @@
 import React from 'react';
-import { Card, CardImg, CardText, CardBody, CardTitle, Breadcrumb} from 'reactstrap';
+import { Card, CardImg, CardText, CardBody, CardTitle, item, Breadcrumb} from 'reactstrap';
 import { Loading } from './LoadingComponent';
-import { baseUrl} from '../shared/baseUrl'; 
+import { baseUrl } from '../shared/baseUrl'; 
+import { FadeTransform } from 'react-animation-components';
 
+//error with my card
 
-function RenderCard({item, isLoading, errMess}) {
+ function RenderCard({item, isLoading, errMess}) {
     if (isLoading) {
         return <Loading />; 
     }
     if (errMess) {
         return <h4>{errMess}</h4>;
     }
-    return (
-        <Card>
-            <CardImg src={baseUrl + item.image} alt={item.name} />
-            <CardBody>
-                <CardTitle> {item.name} </CardTitle>
-                <CardText>{item.description}</CardText>
-            </CardBody>
-        </Card>
-         );
-    }
+   /* return (
+        <FadeTransform
+            in
+            transformProps={{
+                exitTransform: 'scale(0.5) translateY(50%)'
+            }}>
+            <Card>
+                <CardImg src={item.image} alt={item.name} />
+                <CardBody>
+                    <CardTitle>{item.name}</CardTitle>
+                    <CardText>{item.description}</CardText>
+                </CardBody>
+            </Card>
+        </FadeTransform>
+      ); */
+    } 
 
 function Home(props) {
 return (
@@ -40,13 +48,13 @@ return (
                     errMess={props.promotionErrMess}
                  /> 
             </div>
-            <div className="col-md m-1">
+            {/* <div className="col-md m-1">
                 <RenderCard
                     item={props.partner} 
 
                  
                  /> 
-            </div>
+            </div> */}
         </div>
     </div>
 );
